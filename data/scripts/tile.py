@@ -3,9 +3,11 @@ from data.scripts.utilities import load_image
 from data.scripts.mechanism import Mechanism
 
 
+tile_side = 128
 tiles_group = pygame.sprite.Group()
 unpassable_tiles_group = pygame.sprite.Group()
 mechanism_group = pygame.sprite.Group()
+ores_group = pygame.sprite.Group()
 
 player_image = load_image('player.png')
 
@@ -13,7 +15,8 @@ tile_meta_types = {
     'stones': {'stone_t1', 'stone_t2', 'stone_t3'},
     'mechanisms': {'furnace_t1', 'furnace_t2', 'furnace_t3',
                    'researcher_t1', 'researcher_t3', 'reactor'},
-    'ores': {'osmium_ore', 'uranium_ore', 'coal_ore', 'copper_ore', 'iron_ore'}
+    'ores': {'osmium_ore', 'uranium_ore', 'coal_ore', 'copper_ore', 'iron_ore'},
+    'floors': {'stone_t1_floor', 'stone_t2_floor', 'stone_t3_floor'}
 }
 
 unpassable_meta_types = {'mechanisms', 'stones'}
@@ -22,6 +25,10 @@ tile_images = {
     'stone_t1': load_image('stone_T1.png'),
     'stone_t2': load_image('stone_T2.png'),
     'stone_t3': load_image('stone_T3.png'),
+    'stone_t1_floor': load_image('stone_T1_floor.png'),
+    'stone_t2_floor': load_image('stone_T2_floor.png'),
+    'stone_t3_floor': load_image('stone_T3_floor.png'),
+    'stone_unbreakable': load_image('stone_unbreakable.png'),
     'furnace_off_t1': load_image('furnace_off_T1.png'),
     'furnace_off_t2': load_image('furnace_off_T2.png'),
     'furnace_off_t3': load_image('furnace_off_T3.png'),
@@ -47,7 +54,7 @@ tile_images = {
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_type, x, y, w=128, h=128):
+    def __init__(self, tile_type, x, y, w=tile_side, h=tile_side):
         super().__init__(tiles_group)
 
         self.tile_type = tile_type
@@ -55,14 +62,13 @@ class Tile(pygame.sprite.Sprite):
         self.tile_meta_type = 'else'
         self.init_meta_type()
 
-        print(self.tile_meta_type)
-
         if self.tile_meta_type == 'mechanisms':
             self.mecha = Mechanism(tile_type)
             self.image = tile_images[tile_type.replace('_', '_off_')]
             mechanism_group.add(self)
         elif self.tile_meta_type == 'ores':
             self.image = tile_images[tile_type]
+            ores_group.add(self)
             pass  # TODO make ores work
         elif self.tile_meta_type == 'stones':
             self.image = tile_images[tile_type]
@@ -73,20 +79,17 @@ class Tile(pygame.sprite.Sprite):
         else:
             self.image = tile_images['err']
 
-
-        self.rect = self.image.get_rect().move(
-            w * x, h * y)
+        self.rect = pygame.rect.Rect(x, y, tile_side, tile_side)
 
     def init_meta_type(self):
         for tile_meta_type in tile_meta_types:
-            print(self.tile_type, tile_meta_types[tile_meta_type])
             if self.tile_type in tile_meta_types[tile_meta_type]:
                 self.tile_meta_type = tile_meta_type
                 if tile_meta_type in unpassable_meta_types:
                     unpassable_tiles_group.add(self)
                 break
 
-    def update(self, time_step):
+    def update(self, time):
         if self.mecha is not None:
             if self.mecha.is_on:
                 self.image = tile_images[self.tile_type.replace('_', '_on_')]

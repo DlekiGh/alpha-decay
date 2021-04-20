@@ -6,16 +6,15 @@ crafts_of_mechas = {
 }
 
 
-crafting_recipes = {
-    'iron_plate': Item('iron_plate').get_crafting_recipe(),
-    'copper_wire': Item('copper_wire').get_crafting_recipe(),
-}
+def recipe(item):
+    return item.get_crafting_recipe()
 
 
 class Mechanism:
     def __init__(self, mecha_type):
-        self.crafts = crafts_of_mechas[mecha_type]
+        self.crafts = crafts_of_mechas.get(mecha_type, {})
         self.is_on = False
+        self.mecha_type = mecha_type
         self.ingredient_slot = None
         self.fuel_slot = None
         self.done_slot = None
@@ -30,8 +29,8 @@ class Mechanism:
             self.fuel_slot is None:
             return
         for craft in self.crafts:
-            craft = crafting_recipes[craft]
-            if self.tile.tile_type in craft['where'] and\
+            craft = recipe(craft)
+            if self.mecha_type in craft['where'] and\
                 self.ingredient_slot.get_amount() >= craft['ingredients'][0] and\
                 self.fuel_slot.get_amount() >= craft['fuel'][0]:
                     pass  # TODO craft
