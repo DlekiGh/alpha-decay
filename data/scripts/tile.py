@@ -90,8 +90,4 @@ class Tile(pygame.sprite.Sprite):
                 break
 
     def update(self, time):
-        if self.mecha is not None:
-            if self.mecha.is_on:
-                self.image = tile_images[self.tile_type.replace('_', '_on_')]
-            else:
-                self.image = tile_images[self.tile_type.replace('_', '_off_')]
+        pass # TODO think abt this shit

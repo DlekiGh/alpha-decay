@@ -6,7 +6,7 @@ from math import atan2, degrees
 
 
 player_group = pygame.sprite.Group()
-player_speed = 10
+player_speed = 375
 diagonal_speed = player_speed / (2 ** 0.5)
 
 class Player(pygame.sprite.Sprite):
@@ -24,8 +24,10 @@ class Player(pygame.sprite.Sprite):
     def new_mouse_pos(self, pos):
         self.mouse_pos = pos
 
-    def get_delta_pos(self):
+    def get_delta_pos(self, delta_time):
         w, a, s, d = self.keys['w'], self.keys['a'], self.keys['s'], self.keys['d']
+        player_speed_this_delta = player_speed * delta_time / 1000
+        diagonal_speed_this_delta = diagonal_speed * delta_time / 1000
         delta_y, delta_x = 0, 0
         if w and s:
             a = False
@@ -34,26 +36,26 @@ class Player(pygame.sprite.Sprite):
             a = False
             d = False
         if w:
-            delta_y -= player_speed
+            delta_y -= player_speed_this_delta
         if a:
-            delta_x -= player_speed
+            delta_x -= player_speed_this_delta
         if s:
-            delta_y += player_speed
+            delta_y += player_speed_this_delta
         if d:
-            delta_x += player_speed
+            delta_x += player_speed_this_delta
         if w and a:
-            delta_y, delta_x = -diagonal_speed, -diagonal_speed
+            delta_y, delta_x = -diagonal_speed_this_delta, -diagonal_speed_this_delta
         if w and d:
-            delta_y, delta_x = -diagonal_speed, diagonal_speed
+            delta_y, delta_x = -diagonal_speed_this_delta, diagonal_speed_this_delta
         if a and s:
-            delta_y, delta_x = diagonal_speed, -diagonal_speed
+            delta_y, delta_x = diagonal_speed_this_delta, -diagonal_speed_this_delta
         if s and d:
-            delta_y, delta_x = diagonal_speed, diagonal_speed
+            delta_y, delta_x = diagonal_speed_this_delta, diagonal_speed_this_delta
         return delta_x, delta_y
 
-    def update_pos(self):
+    def update_pos(self, delta_time):
         old_pos = (self.rect.x, self.rect.y)
-        delta_x, delta_y = self.get_delta_pos()
+        delta_x, delta_y = self.get_delta_pos(delta_time)
         self.rect = self.rect.move(delta_x, 0)
         if pygame.sprite.spritecollideany(self, unpassable_tiles_group):
             self.rect.x, self.rect.y = old_pos
@@ -62,8 +64,8 @@ class Player(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, unpassable_tiles_group):
             self.rect.x, self.rect.y = old_pos
 
-    def update(self):
-        self.update_pos()
+    def update(self, delta_time):
+        self.update_pos(delta_time)
         x, y = self.mouse_pos
         x -= self.width // 2
         y -= self.height // 2

@@ -8,6 +8,7 @@ from math import sqrt
 
 with open('data/config.json') as config_file:
     config = json.load(config_file)
+config = config['world_gen']
 
 
 radius_world = 0
@@ -37,7 +38,7 @@ def generate_ore(mn, mx, n, ore):
             y = randint(0, radius_world * 2 - 1)
 
 
-def generate_terrain(config):
+def generate_terrain():
     global radius_world, world_stone_map
     radius_world = config['t0_width'] + config['t1_width'] + \
                    config['t2_width'] + config['t3_width']
@@ -61,4 +62,4 @@ def generate_terrain(config):
     for ore in config['ores']:
         generate_ore(*config['ores'][ore], ore=ore)
     print('Done')
-    return radius_world
+    return radius_world, world_stone_map

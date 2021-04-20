@@ -44,7 +44,7 @@ class Item(pygame.sprite.Sprite):
     def __init__(self, item_type):
         super().__init__(items_group)
         self.image = item_images[item_type]
-        # self.rect = self.rect.move((-1000, -1000)) TODO whatever the problem i have here
+        self.rect = self.rect.move((-1000, -1000)) # TODO whatever the problem i have here
         self.crafting_recipe = recipes[item_type]
 
     def get_crafting_recipe(self):
